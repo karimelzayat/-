@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>نظام حضور الموظفين - النسخة الاحترافية</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    .star-rating {
+      direction: rtl;
+      unicode-bidi: bidi-override;
+      margin-top: 10px;
+      display: inline-block;
+      font-size: 0;
+    }
+    .star-rating span {
+      font-size: 28px;
+      color: #ddd;
+      cursor: pointer;
+      display: inline-block;
+      position: relative;
+      padding: 0 3px;
+      transition: all 0.2s ease;
+    }
+    .star-rating span:hover,
+    .star-rating span:hover ~ span,
+    .star-rating span.active,
+    .star-rating span.active ~ span {
+      color: #ffc107;
+    }
+    .star-rating span.active {
+      color: #ffc107;
+      transform: scale(1.1);
+    }
+    .star-rating span:hover {
+      transform: scale(1.2);
+    }
+    .star-rating input[type="hidden"] {
+      display: none;
+    }
+    .star-rating-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #0a4b78;
+    }
+    :root {
+      --primary-color: #0a4b78;
+      --secondary-color: #f0f4f7;
+      --accent-color: #2962ff;
+      --text-color: #333;
+      --light-gray: #f9f9f9;
+      --border-color: #ddd;
+      --error-color: #d32f2f;
+      --success-color: #388e3c;
+      --warning-color: #ffa000;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Tajawal', Arial, sans-serif;
+      background: linear-gradient(to bottom right, #f0f4f7, #dfe9f3);
+      padding: 20px;
+      margin: 0;
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 30px;
+      font-weight: 700;
+    }
+    h2, h3 {
+      color: var(--primary-color);
+      margin: 25px 0 15px;
+      font-weight: 600;
+    }
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+      margin-top: 20px;
+      display: block;
+    }
+    select, input[type="date"], input[type="month"], button, textarea {
+      width: 100%;
+      padding: 12px 15px;
+      margin-top: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Tajawal', Arial, sans-serif;
+    }
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    select:focus, input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(41, 98, 255, 0.2);
+    }
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 25px;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #08395c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    button:active {
+      transform: translateY(0);
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .button-group button {
+      flex: 1;
+    }
+    #employeeInfo:not(:empty), #attendanceResult:not(:empty), #attendanceSummary:not(:empty), #duplicatesList:not(:empty), #evaluationResult:not(:empty) {
+      display: block;
+      margin-top: 20px;
+    }
+    #employeeInfo:empty, #attendanceResult:empty, #attendanceSummary:empty, #duplicatesList:empty, #evaluationResult:empty {
+      display: none;
+    }
+    .result-section:not(:empty) {
+      background: var(--light-gray);
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+    .duplicates-list:not(:empty) {
+      margin-top: 30px;
+      background: #fff8e1;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid #ffd54f;
+    }
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    .result-table th {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 12px;
+      text-align: right;
+    }
+    .result-table td {
+      padding: 10px;
+      border: 1px solid var(--border-color);
+    }
+    .result-table tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    .negative-balance {
+      color: var(--error-color);
+      font-weight: bold;
+    }
+    .positive-balance {
+      color: var(--success-color);
+      font-weight: bold;
+    }
+    .loader {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .error-message {
+      color: var(--error-color);
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      background-color: #ffebee;
+      display: none;
+    }
+    .success-message {
+      color: var(--success-color);
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 4px;
+      background-color: #e8f5e9;
+      display: none;
+    }
+    .date-range-container {
+      display: none;
+      background: var(--secondary-color);
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    .date-range-container.active {
+      display: block;
+    }
+    .duplicate-item {
+      padding: 8px;
+      border-bottom: 1px solid #ffecb3;
+    }
+    #customDateRange {
+      margin-top: 15px;
+      padding: 15px;
+      background: #f5f5f5;
+      border-radius: 8px;
+    }
+    #timePeriod {
+      margin-bottom: 15px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #f5f5f5;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      border-radius: 5px 5px 0 0;
+      margin-right: 5px;
+    }
+    .tab.active {
+      background-color: var(--primary-color);
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .evaluation-form {
+      margin-top: 20px;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 15px;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+      .tabs {
+        flex-direction: column;
+      }
+      .tab {
+        margin-bottom: 5px;
+        border-radius: 5px;
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+        margin: 5px;
+        border-radius: 5px;
+      }
+      h1 {
+        font-size: 1.3rem;
+        margin-bottom: 10px;
+      }
+      h2 {
+        font-size: 1.1rem;
+        margin-top: 0;
+      }
+      select, input[type="date"], input[type="month"], button, textarea {
+        padding: 8px 10px;
+        font-size: 14px;
+        margin-top: 5px;
+      }
+      .result-table {
+        font-size: 12px;
+      }
+      .result-table th, .result-table td {
+        padding: 6px 4px;
+      }
+      .button-group {
+        flex-direction: column;
+      }
+      .button-group button {
+        margin-top: 5px;
+        padding: 8px;
+      }
+      .date-range-container {
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>الإدارة العامة لخدمة المواطنين</h1>
+    <h2 style="margin-top:5px;color:#0a4b78;text-align:center">(نظام الحضور والتقييم)</h2>
+    <div class="tabs">
+      <div class="tab active" onclick="openTab('attendanceTab')">الحضور والغياب</div>
+      <div class="tab" onclick="openTab('evaluationTab')">تقييم الموظفين</div>
+    </div>
+    <div id="attendanceTab" class="tab-content active">
+      <!-- محتوى قسم الحضور والغياب يبقى كما هو -->
+      <label for="employeeSelect">اختر الموظف:</label>
+      <select id="employeeSelect"><option value="">-- اختر موظف --</option></select>
+      <div class="button-group">
+        <button id="dailyBtn" onclick="showDailySection()">استعلام يومي</button>
+        <button id="rangeBtn" onclick="showRangeSection()">تقرير فترة</button>
+      </div>
+      <div id="dailySection">
+        <label for="dailyDate">اختر التاريخ:</label>
+        <input type="date" id="dailyDate">
+        <button onclick="getDailyAttendance()">عرض الحالة</button>
+      </div>
+      <div id="rangeSection" class="date-range-container">
+        <label for="timePeriod">اختر الفترة الزمنية:</label>
+        <select id="timePeriod" onchange="changeTimePeriod()">
+          <option value="custom">مخصص</option>
+          <option value="yesterday">أمس</option>
+          <option value="week">آخر أسبوع</option>
+          <option value="month">آخر شهر</option>
+          <option value="monthStart">منذ أول الشهر</option>
+        </select>
+        <div id="customDateRange">
+          <label for="fromDate">من تاريخ:</label>
+          <input type="date" id="fromDate">
+          <label for="toDate">إلى تاريخ:</label>
+          <input type="date" id="toDate">
+        </div>
+        <button onclick="getRangeAttendance()">عرض التقرير</button>
+        <button onclick="exportToPDF()" style="background-color:#4caf50">تصدير PDF</button>
+      </div>
+      <div class="loader" id="loader"></div>
+      <div class="error-message" id="errorMessage"></div>
+      <div class="result-section" id="employeeInfo"></div>
+      <div class="result-section" id="attendanceResult"></div>
+      <div class="result-section" id="attendanceSummary"></div>
+      <div class="duplicates-list" id="duplicatesList"></div>
+    </div>
+    <div id="evaluationTab" class="tab-content">
+      <label for="evaluationEmployeeSelect">اختر الموظف:</label>
+      <select id="evaluationEmployeeSelect"><option value="">-- اختر موظف --</option></select>
+      <!-- حقل شهر التقييم المضاف -->
+      <label for="evaluationMonth">اختر شهر التقييم:</label>
+      <input type="month" id="evaluationMonth">
+      <label>التقييم العام (%):</label>
+      <select id="overallRating" onchange="updatePerformanceLevel()">
+        <option value="">-- اختر النسبة --</option>
+        <option value="100">100%</option>
+        <option value="90">90%</option>
+        <option value="80">80%</option>
+        <option value="70">70%</option>
+        <option value="60">60%</option>
+        <option value="50">50%</option>
+        <option value="40">40%</option>
+        <option value="30">30%</option>
+        <option value="20">20%</option>
+        <option value="10">10%</option>
+        <option value="0">0%</option>
+      </select>
+      <label for="performanceLevel">مستوى الأداء:</label>
+      <input type="text" id="performanceLevel" readonly 
+         style="background-color:#f5f5f5; font-size: 18px; font-weight: bold; color: #0a4b78; padding: 10px; text-align: center;">
+      <!-- حقول النجوم والتقييمات -->
+      <label class="star-rating-label">الجهود المبذولة في أداء العمل:</label>
+      <div class="star-rating" id="strengthsRating">
+        <span onclick="rate(this, 'strengths')">★</span>
+        <span onclick="rate(this, 'strengths')">★</span>
+        <span onclick="rate(this, 'strengths')">★</span>
+        <span onclick="rate(this, 'strengths')">★</span>
+        <span onclick="rate(this, 'strengths')">★</span>
+        <input type="hidden" id="strengths" name="strengths" value="">
+        <textarea id="strengthsComment" placeholder="اكتب تعليقك هنا..." style="width:100%; margin-top:10px; display:none"></textarea>
+      </div>
+      <label class="star-rating-label">مدى تحقيق الأهداف المحددة:</label>
+      <div class="star-rating" id="weaknessesRating">
+        <span onclick="rate(this, 'weaknesses')">★</span>
+        <span onclick="rate(this, 'weaknesses')">★</span>
+        <span onclick="rate(this, 'weaknesses')">★</span>
+        <span onclick="rate(this, 'weaknesses')">★</span>
+        <span onclick="rate(this, 'weaknesses')">★</span>
+        <input type="hidden" id="weaknesses" name="weaknesses" value="">
+        <textarea id="weaknessesComment" placeholder="اكتب تعليقك هنا..." style="width:100%; margin-top:10px; display:none"></textarea>
+      </div>
+      <label class="star-rating-label">مدى الالتزام بمعايير الجودة والأداء:</label>
+      <div class="star-rating" id="trainingNeedsRating">
+        <span onclick="rate(this, 'trainingNeeds')">★</span>
+        <span onclick="rate(this, 'trainingNeeds')">★</span>
+        <span onclick="rate(this, 'trainingNeeds')">★</span>
+        <span onclick="rate(this, 'trainingNeeds')">★</span>
+        <span onclick="rate(this, 'trainingNeeds')">★</span>
+        <input type="hidden" id="trainingNeeds" name="trainingNeeds" value="">
+        <textarea id="trainingNeedsComment" placeholder="اكتب تعليقك هنا..." style="width:100%; margin-top:10px; display:none"></textarea>
+      </div>
+      <label class="star-rating-label">مدى الالتزام بالتعليمات والقواعد المنظمة للعمل:</label>
+      <div class="star-rating" id="evaluationNotesRating">
+        <span onclick="rate(this, 'evaluationNotes')">★</span>
+        <span onclick="rate(this, 'evaluationNotes')">★</span>
+        <span onclick="rate(this, 'evaluationNotes')">★</span>
+        <span onclick="rate(this, 'evaluationNotes')">★</span>
+        <span onclick="rate(this, 'evaluationNotes')">★</span>
+        <input type="hidden" id="evaluationNotes" name="evaluationNotes" value="">
+        <textarea id="evaluationNotesComment" placeholder="اكتب تعليقك هنا..." style="width:100%; margin-top:10px; display:none"></textarea>
+      </div>
+      <button onclick="saveEvaluation()">حفظ التقييم</button>
+      <!-- قسم تصدير التقرير الشهري -->
+      <div style="margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px;">
+        <h3>تصدير تقرير شهري</h3>
+        <label for="exportMonth">اختر الشهر:</label>
+        <input type="month" id="exportMonth">
+        <button onclick="exportMonthlyReport()" style="background-color: #4caf50;">إنشاء التقرير</button>
+        <div id="monthlyExportStatus" style="margin-top: 10px;"></div>
+      </div>
+      <div class="loader" id="evaluationLoader"></div>
+    </div>
+    <div style="margin-top:40px;text-align:center;border-top:1px solid #eee;padding-top:20px">
+      <div style="font-size:12px;color:#666">جميع الحقوق محفوظة &copy; <span id="currentYear"></span> - الإدارة العامة لخدمة الموظفين</div>
+    </div>
+  </div>
+  <script>
+    // دالة تحديث مستوى الأداء بناء على التقييم العام
+    function updatePerformanceLevel() {
+      const rating = parseInt(document.getElementById('overallRating').value);
+      let level = "غير محدد";
+      if (rating >= 90) level = "ممتاز";
+      else if (rating >= 80) level = "جيد جداً";
+      else if (rating >= 70) level = "جيد";
+      else if (rating >= 60) level = "مقبول";
+      else if (rating >= 0) level = "ضعيف";
+      document.getElementById('performanceLevel').value = level;
+    }
+    // دالة تقييم النجوم
+    function rate(star, field) {
+      const starsContainer = star.parentElement;
+      const stars = Array.from(starsContainer.querySelectorAll('span'));
+      const hiddenInput = document.getElementById(field);
+      const commentField = document.getElementById(field + 'Comment');
+      const clickedIndex = stars.indexOf(star);
+      const ratingValue = 5 - clickedIndex; // لأن النجوم مرتبة من اليمين لليسار
+      // إعادة تعيين كل النجوم
+      stars.forEach(s => s.classList.remove('active'));
+      // تفعيل النجوم حتى النجمة المختارة
+      for (let i = stars.length - 1; i >= clickedIndex; i--) {
+        stars[i].classList.add('active');
+      }
+      hiddenInput.value = ratingValue;
+      commentField.style.display = ratingValue > 0 ? 'block' : 'none';
+    }
+    // دالة تحويل النجوم إلى نص
+    function starsToText(stars) {
+      const ratings = {
+        0: "لم يتم التقييم",
+        1: "ضعيف جداً",
+        2: "ضعيف",
+        3: "متوسط",
+        4: "جيد",
+        5: "ممتاز"
+      };
+      const ratingValue = parseInt(stars) || 0;
+      return `${ratings[ratingValue]} (${ratingValue}/5)`;
+    }
+    // تعيين السنة الحالية في الفوتر
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    // تعريف المتغيرات العامة
+    const employeeSelect = document.getElementById('employeeSelect');
+    const evaluationEmployeeSelect = document.getElementById('evaluationEmployeeSelect');
+    const dailySection = document.getElementById('dailySection');
+    const rangeSection = document.getElementById('rangeSection');
+    const loader = document.getElementById('loader');
+    const evaluationLoader = document.getElementById('evaluationLoader');
+    const errorMessage = document.getElementById('errorMessage');
+    const employeeInfo = document.getElementById('employeeInfo');
+    const attendanceResult = document.getElementById('attendanceResult');
+    const attendanceSummary = document.getElementById('attendanceSummary');
+    const duplicatesList = document.getElementById('duplicatesList');
+    const evaluationResult = document.getElementById('evaluationResult');
+    // عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', function() {
+      loadEmployees();
+      showDailySection();
+      document.getElementById('timePeriod').value = 'week';
+      changeTimePeriod();
+      // تعيين الشهر الحالي كقيمة افتراضية لحقل شهر التقييم
+      const today = new Date();
+      document.getElementById('evaluationMonth').value = today.getFullYear() + '-' + 
+        String(today.getMonth() + 1).padStart(2, '0');
+    });
+    // فتح التبويبات
+    function openTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+    }
+    // تحميل قائمة الموظفين
+    function loadEmployees() {
+      showLoader();
+      clearError();
+      google.script.run
+        .withSuccessHandler(names => {
+          hideLoader();
+          populateEmployeeSelect(names);
+          populateEvaluationEmployeeSelect(names);
+        })
+        .withFailureHandler(error => {
+          hideLoader();
+          showError('فشل في تحميل قائمة الموظفين: ' + error.message);
+        })
+        .getNames();
+    }
+    // تعبئة قائمة الموظفين
+    function populateEmployeeSelect(names) {
+      employeeSelect.innerHTML = '<option value="">-- اختر موظف --</option>';
+      names.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        employeeSelect.appendChild(option);
+      });
+    }
+    // تعبئة قائمة الموظفين للتقييم
+    function populateEvaluationEmployeeSelect(names) {
+      evaluationEmployeeSelect.innerHTML = '<option value="">-- اختر موظف --</option>';
+      names.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        evaluationEmployeeSelect.appendChild(option);
+      });
+    }
+    // عرض قسم الاستعلام اليومي
+    function showDailySection() {
+      dailySection.style.display = 'block';
+      rangeSection.classList.remove('active');
+      document.getElementById('dailyBtn').style.backgroundColor = '#08395c';
+      document.getElementById('rangeBtn').style.backgroundColor = '#0a4b78';
+      clearResults();
+    }
+    // عرض قسم تقرير الفترة
+    function showRangeSection() {
+      dailySection.style.display = 'none';
+      rangeSection.classList.add('active');
+      document.getElementById('dailyBtn').style.backgroundColor = '#0a4b78';
+      document.getElementById('rangeBtn').style.backgroundColor = '#08395c';
+      clearResults();
+    }
+    // تغيير الفترة الزمنية
+    function changeTimePeriod() {
+      const period = document.getElementById('timePeriod').value;
+      const customRange = document.getElementById('customDateRange');
+      const fromDateInput = document.getElementById('fromDate');
+      const toDateInput = document.getElementById('toDate');
+      customRange.style.display = period === 'custom' ? 'block' : 'none';
+      if (period === 'custom') return;
+      const today = new Date();
+      let fromDate = new Date();
+      switch(period) {
+        case 'yesterday': 
+          fromDate.setDate(today.getDate() - 1); 
+          break;
+        case 'week': 
+          fromDate.setDate(today.getDate() - 7); 
+          break;
+        case 'month': 
+          fromDate.setMonth(today.getMonth() - 1); 
+          break;
+        case 'monthStart': 
+          fromDate = new Date(today.getFullYear(), today.getMonth(), 1); 
+          break;
+      }
+      fromDateInput.valueAsDate = fromDate;
+      toDateInput.valueAsDate = today;
+    }
+    // الحصول على الحضور اليومي
+    function getDailyAttendance() {
+      const employeeName = employeeSelect.value;
+      const date = document.getElementById('dailyDate').value;
+      
+      if (!employeeName) return showError('الرجاء اختيار موظف');
+      if (!date) return showError('الرجاء اختيار تاريخ');
+      showLoader();
+      clearResults();
+      clearError();
+      google.script.run
+        .withSuccessHandler(displayEmployeeInfo)
+        .withFailureHandler(error => showError('فشل في جلب بيانات الموظف: ' + error.message))
+        .getEmployeeData(employeeName);
+      
+      google.script.run
+        .withSuccessHandler(status => {
+          displayDailyResult(date, status);
+          hideLoader();
+        })
+        .withFailureHandler(error => {
+          showError('فشل في جلب حالة الحضور: ' + error.message);
+          hideLoader();
+        })
+        .getAttendanceStatus(employeeName, date);
+    }
+    // الحصول على ملخص الحضور للفترة
+    function getRangeAttendance() {
+      const employeeName = employeeSelect.value;
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      if (!employeeName) return showError('الرجاء اختيار موظف');
+      if (!fromDate || !toDate) return showError('الرجاء اختيار الفترة الزمنية');
+      showLoader();
+      clearResults();
+      clearError();
+      google.script.run
+        .withSuccessHandler(displayEmployeeInfo)
+        .withFailureHandler(error => showError('فشل في جلب بيانات الموظف: ' + error.message))
+        .getEmployeeData(employeeName);
+      google.script.run
+        .withSuccessHandler(summary => {
+          displayRangeSummary(fromDate, toDate, summary);
+          hideLoader();
+        })
+        .withFailureHandler(error => {
+          showError('فشل في جلب ملخص الحضور: ' + error.message);
+          hideLoader();
+        })
+        .getAttendanceSummary(employeeName, fromDate, toDate);
+      google.script.run
+        .withSuccessHandler(displayDuplicates)
+        .withFailureHandler(error => console.error('Error getting duplicates:', error))
+        .getDuplicates();
+    }
+    // تصدير إلى PDF
+    function exportToPDF() {
+      const employeeName = employeeSelect.value;
+      const fromDate = document.getElementById('fromDate').value;
+      const toDate = document.getElementById('toDate').value;
+      
+      if (!employeeName || !fromDate || !toDate) {
+        return showError('الرجاء اختيار الموظف والفترة الزمنية');
+      }
+      showLoader();
+      clearError();
+      google.script.run
+        .withSuccessHandler(pdfUrl => window.open(pdfUrl, '_blank'))
+        .withFailureHandler(error => {
+          hideLoader();
+          showError('فشل في تصدير PDF: ' + error.message);
+        })
+        .exportAttendanceReport(employeeName, fromDate, toDate);
+    }
+    // حفظ التقييم
+    function saveEvaluation() {
+      const employeeName = evaluationEmployeeSelect.value;
+      const evaluationMonth = document.getElementById('evaluationMonth').value;
+      const overallRating = document.getElementById('overallRating').value;
+      const performanceLevel = document.getElementById('performanceLevel').value;
+      const strengths = document.getElementById('strengths').value;
+      const weaknesses = document.getElementById('weaknesses').value;
+      const trainingNeeds = document.getElementById('trainingNeeds').value;
+      const notes = document.getElementById('evaluationNotes').value;
+      const strengthsComment = document.getElementById('strengthsComment').value;
+      const weaknessesComment = document.getElementById('weaknessesComment').value;
+      const trainingNeedsComment = document.getElementById('trainingNeedsComment').value;
+      const notesComment = document.getElementById('evaluationNotesComment').value;
+      if (!employeeName) return showError('الرجاء اختيار موظف');
+      if (!evaluationMonth) return showError('الرجاء اختيار شهر التقييم');
+      evaluationLoader.style.display = 'block';
+      const evaluationData = {
+        overallRating: overallRating + '%',
+        performanceLevel,
+        strengths: `الجهود المبذولة في أداء العمل: ${starsToText(strengths)}${strengthsComment ? ' - ' + strengthsComment : ''}`,
+        weaknesses: `مدى تحقيق الأهداف المحددة: ${starsToText(weaknesses)}${weaknessesComment ? ' - ' + weaknessesComment : ''}`,
+        trainingNeeds: `مدى الالتزام بمعايير الجودة والأداء: ${starsToText(trainingNeeds)}${trainingNeedsComment ? ' - ' + trainingNeedsComment : ''}`,
+        notes: `مدى الالتزام بالتعليمات والقواعد المنظمة للعمل: ${starsToText(notes)}${notesComment ? ' - ' + notesComment : ''}`
+      };
+      google.script.run
+        .withSuccessHandler(result => {
+          evaluationLoader.style.display = 'none';
+          if (result.نجاح) {
+            showSuccess(result.نجاح);
+            displayEvaluationResult(employeeName, evaluationMonth, evaluationData);
+          } else if (result.خطأ) {
+            showError(result.خطأ);
+          }
+        })
+        .withFailureHandler(error => {
+          evaluationLoader.style.display = 'none';
+          showError('حدث خطأ أثناء حفظ التقييم: ' + error.message);
+        })
+        .saveEmployeeEvaluation(employeeName, evaluationData);
+    }
+    // تصدير التقرير الشهري
+    function exportMonthlyReport() {
+      const month = document.getElementById('exportMonth').value;
+      const statusElement = document.getElementById('monthlyExportStatus');
+      if (!month) {
+        statusElement.textContent = 'الرجاء اختيار شهر';
+        statusElement.style.color = '#d32f2f';
+        return;
+      }
+      statusElement.textContent = 'جاري إعداد التقرير...';
+      statusElement.style.color = '#0a4b78';
+      google.script.run
+        .withSuccessHandler(url => {
+          statusElement.innerHTML = 'تم إنشاء التقرير بنجاح. <a href="' + url + '" target="_blank">فتح التقرير</a>';
+          statusElement.style.color = '#388e3c';
+          window.open(url, '_blank');
+        })
+        .withFailureHandler(error => {
+          statusElement.textContent = 'خطأ: ' + error.message;
+          statusElement.style.color = '#d32f2f';
+        })
+        .exportMonthlyEvaluations(month);
+    }
+    // عرض بيانات الموظف
+    function displayEmployeeInfo(data) {
+      employeeInfo.innerHTML = data?.خطأ ? 
+        `<div class="error-message">${data.خطأ || 'بيانات الموظف غير متوفرة'}</div>` : 
+        `
+        <div class="info-section">
+          <h3 style="color:#0a4b78;margin-bottom:15px;border-bottom:2px solid #f0f4f7;padding-bottom:8px">بيانات الاتصال</h3>
+          <table class="result-table" style="width:100%;border-collapse:collapse;margin-top:10px">
+            <thead>
+              <tr>
+                <th style="background-color:#0a4b78;color:white;padding:12px;text-align:right">العنوان</th>
+                <th style="background-color:#0a4b78;color:white;padding:12px;text-align:right">البيانات</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${createTableRows({
+                "رقم التليفون": data["رقم التليفون"] || data.هاتف,
+                "البريد الإلكتروني": data["البريد الإلكتروني"] || data.mail || 'غير متوفر',
+                "العنوان": data.العنوان
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div class="info-section" style="margin-top:25px">
+          <h3 style="color:#0a4b78;margin-bottom:15px;border-bottom:2px solid #f0f4f7;padding-bottom:8px">البيانات الحكومية</h3>
+          <table class="result-table" style="width:100%;border-collapse:collapse;margin-top:10px">
+            <thead>
+              <tr>
+                <th style="background-color:#0a4b78;color:white;padding:12px;text-align:right">العنوان</th>
+                <th style="background-color:#0a4b78;color:white;padding:12px;text-align:right">البيانات</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${createTableRows({
+                "الرقم القومي": data["الرقم القومي"],
+                "تاريخ استلام العمل": data["تاريخ استلام العمل بالادارة"],
+                "موقف التكليف": formatEmploymentStatus(data["موقف التكليف"])
+              })}
+            </tbody>
+          </table>
+        </div>
+        `;
+    }
+    // عرض نتيجة الحضور اليومي
+    function displayDailyResult(date, status) {
+      const formattedDate = formatArabicDate(date);
+      const formattedStatus = status.includes("(") ? 
+        status.replace(/\((.*)\)/, '<span style="color:#666">($1)</span>') : 
+        status;
+      
+      attendanceResult.innerHTML = `
+        <h3>حالة الحضور</h3>
+        <table class="result-table">
+          <tr><td><strong>التاريخ</strong></td><td>${formattedDate}</td></tr>
+          <tr><td><strong>الحالة</strong></td><td>${formattedStatus}</td></tr>
+        </table>`;
+    }
+    // عرض ملخص الحضور للفترة
+    function displayRangeSummary(fromDate, toDate, summary) {
+      if (summary.خطأ) {
+        return attendanceSummary.innerHTML = '<p class="error-message">' + summary.خطأ + '</p>';
+      }
+      const fromDateFormatted = formatArabicDate(fromDate);
+      const toDateFormatted = formatArabicDate(toDate);
+      const types = ["اعتيادي","عارضة","اذن صباحي","اذن مسائي","بدل راحة","مرضي","مستشفي","مأموريات"];
+      let html = `<h3>ملخص الحضور من ${fromDateFormatted} إلى ${toDateFormatted}</h3>
+        <table class="result-table"><tr><th>نوع الحضور</th><th>عدد الأيام</th></tr>`;
+      types.forEach(type => html += `<tr><td>${type}</td><td>${summary.attendance[type] || 0}</td></tr>`);
+      html += `</table><h3 style="margin-top:20px">الرصيد المتبقي</h3>
+        <table class="result-table">
+          <tr><th>النوع</th><th>الرصيد الأصلي</th><th>المستحق</th><th>المتبقي</th></tr>
+          <tr>
+            <td>إعتيادي</td>
+            <td>${summary.balance.رصيد_الاعتيادي || 0}</td>
+            <td>${summary.attendance["اعتيادي"] || 0}</td>
+            <td class="${getBalanceClass(summary.remaining.المتبقي_من_الاعتيادي)}">${summary.remaining.المتبقي_من_الاعتيادي || 0}</td>
+          </tr>
+          <tr>
+            <td>عارضة</td>
+            <td>${summary.balance.رصيد_العارضة || 0}</td>
+            <td>${summary.attendance["عارضة"] || 0}</td>
+            <td class="${getBalanceClass(summary.remaining.المتبقي_من_العارضة)}">${summary.remaining.المتبقي_من_العارضة || 0}</td>
+          </tr>
+        </table>`;
+      
+      attendanceSummary.innerHTML = html;
+    }
+    function displayEvaluationResult(employeeName, evaluationMonth, data) {
+  evaluationResult.innerHTML = `
+    <h3>بيانات التقييم المحفوظة</h3>
+    <table class="result-table">
+      <tr><td><strong>اسم الموظف</strong></td><td>${employeeName}</td></tr>
+      <tr><td><strong>شهر التقييم</strong></td><td>${evaluationMonth}</td></tr>
+      <tr><td><strong>التقييم العام</strong></td><td>${data.overallRating || 'غير محدد'}</td></tr>
+      <tr><td><strong>مستوى الأداء</strong></td><td>${data.performanceLevel || 'غير محدد'}</td></tr>
+      <tr><td><strong>${data.strengths.split(':')[0]}</strong></td><td>${data.strengths.split(':')[1] || 'غير متوفر'}</td></tr>
+      <tr><td><strong>${data.weaknesses.split(':')[0]}</strong></td><td>${data.weaknesses.split(':')[1] || 'غير متوفر'}</td></tr>
+      <tr><td><strong>${data.trainingNeeds.split(':')[0]}</strong></td><td>${data.trainingNeeds.split(':')[1] || 'غير متوفر'}</td></tr>
+      <tr><td><strong>${data.notes.split(':')[0]}</strong></td><td>${data.notes.split(':')[1] || 'لا يوجد'}</td></tr>
+    </table>`;
+}
+    function displayDuplicates(duplicates) {
+      if (!duplicates || duplicates.خطأ || duplicates.length === 0) return duplicatesList.innerHTML = '';
+      
+      let html = '<h3>الأسماء المكررة</h3><div class="duplicates-container">';
+      duplicates.forEach(dup => html += `<div class="duplicate-item"><strong>${dup.name}</strong> - ${formatArabicDate(dup.date)} (${dup.status || 'غير محدد'})</div>`);
+      duplicatesList.innerHTML = html + '</div>';
+    }
+    function createTableRows(data) {
+      return Object.entries(data).map(([key, value]) => `
+        <tr>
+          <td style="padding:10px;border:1px solid #ddd;font-weight:600">${key}</td>
+          <td style="padding:10px;border:1px solid #ddd;${value&&value.includes('span')?'':'background-color:#f9f9f9'}">${value||'غير متوفر'}</td>
+        </tr>`).join('');
+    }
+    function formatEmploymentStatus(status) {
+      if (!status) return 'غير محدد';
+      const statusColors = {"دائم":"#388e3c","مؤقت":"#ffa000","متوقف":"#d32f2f"};
+      return `<span style="color:${statusColors[status]||"#333"};font-weight:bold">${status}</span>`;
+    }
+    function formatArabicDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('ar-EG', {weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    }
+    function getBalanceClass(balance) {
+      return balance < 0 ? 'negative-balance' : 'positive-balance';
+    }
+    function showLoader() { loader.style.display = 'block' }
+    function hideLoader() { loader.style.display = 'none' }
+    function showError(msg) { errorMessage.textContent = msg; errorMessage.style.display = 'block' }
+    function clearError() { errorMessage.style.display = 'none'; errorMessage.textContent = '' }
+    function clearResults() {
+      employeeInfo.innerHTML = '';
+      attendanceResult.innerHTML = '';
+      attendanceSummary.innerHTML = '';
+      duplicatesList.innerHTML = '';
+    }
+    function showEvaluationError(msg) { evaluationError.textContent = msg; evaluationError.style.display = 'block' }
+    function exportEvaluationPDF() {
+  const employeeName = evaluationEmployeeSelect.value;
+  const evaluationMonth = document.getElementById('evaluationMonth').value;
+  if (!employeeName) return showEvaluationError('الرجاء اختيار موظف');
+  if (!evaluationMonth) return showEvaluationError('الرجاء اختيار شهر التقييم');
+  evaluationLoader.style.display = 'block';
+  evaluationError.style.display = 'none';
+  google.script.run
+    .withSuccessHandler(pdfUrl => window.open(pdfUrl, '_blank'))
+    .withFailureHandler(error => {
+      evaluationLoader.style.display = 'none';
+      showEvaluationError('فشل في تصدير PDF: ' + error.message);
+    })
+    .exportEvaluationReport(employeeName, evaluationMonth);
+}
+function exportMonthlyReport() {
+  const month = document.getElementById('exportMonth').value;
+  if (!month) {
+    document.getElementById('monthlyExportStatus').textContent = 'الرجاء اختيار شهر';
+    return;
+  }
+  
+  const statusElement = document.getElementById('monthlyExportStatus');
+  statusElement.textContent = 'جاري إعداد التقرير...';
+  statusElement.style.color = '#0a4b78';
+  
+  google.script.run
+    .withSuccessHandler(url => {
+      statusElement.innerHTML = 'تم إنشاء التقرير بنجاح. <a href="' + url + '" target="_blank">فتح التقرير</a>';
+      statusElement.style.color = '#388e3c';
+      window.open(url, '_blank');
+    })
+    .withFailureHandler(error => {
+      statusElement.textContent = 'خطأ: ' + error.message;
+      statusElement.style.color = '#d32f2f';
+    })
+    .exportMonthlyEvaluations(month);
+}
+  </script>
+</body>
+</html>
