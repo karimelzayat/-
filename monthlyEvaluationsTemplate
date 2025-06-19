@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>ملخص تقييمات الموظفين</title>
+  <style>
+    body { font-family: 'Tajawal', Arial, sans-serif; }
+    h1 { color: #0a4b78; text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background-color: #0a4b78; color: white; padding: 10px; }
+    td { padding: 8px; border: 1px solid #ddd; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    .month-header { text-align: center; font-size: 18px; margin: 15px 0; }
+  </style>
+</head>
+<body>
+  <h1>ملخص تقييمات الموظفين</h1>
+  <div class="month-header">لشهر: <?= month ?></div>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>اسم الموظف</th>
+        <th>التقييم العام</th>
+        <th>مستوى الأداء</th>
+        <th>الجهود المبذولة</th>
+        <th>تحقيق الأهداف</th>
+        <th>الالتزام بالجودة</th>
+        <th>الالتزام بالتعليمات</th>
+      </tr>
+    </thead>
+    <tbody>
+      <? for (var i = 0; i < evaluations.length; i++) { ?>
+      <tr>
+        <td><?= evaluations[i]["اسم الموظف"] ?></td>
+        <td><?= evaluations[i]["التقييم العام"] ?></td>
+        <td><?= evaluations[i]["مستوى الأداء"] ?></td>
+        <td><?= evaluations[i]["الجهود المبذولة في أداء العمل"] ?></td>
+        <td><?= evaluations[i]["مدى تحقيق الأهداف المحددة"] ?></td>
+        <td><?= evaluations[i]["مدى الالتزام بمعايير الجودة والأداء"] ?></td>
+        <td><?= evaluations[i]["مدى الالتزام بالتعليمات والقواعد المنظمة للعمل"] ?></td>
+      </tr>
+      <? } ?>
+    </tbody>
+  </table>
+</body>
+</html>
