@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal&display=swap" rel="stylesheet">
+  <title>تقرير حضور الموظف</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 1cm;
+    }
+    body {
+      font-family: 'Tajawal', Arial, sans-serif;
+      direction: rtl;
+      text-align: right;
+    }
+    body {
+      font-family: 'Tajawal', Arial, sans-serif;
+      padding: 15px;
+      line-height: 1.5;
+      color: #333;
+      background-color: #fff;
+      font-size: 14px;
+    }
+    .report-container {
+      width: 100%;
+      height: 100%;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+    }
+    h1 {
+      color: #0a4b78;
+      font-size: 20px;
+      margin-bottom: 5px;
+    }
+    h2 {
+      color: #0a4b78;
+      font-size: 18px;
+      margin-top: 0;
+    }
+    h3 {
+      color: #0a4b78;
+      font-size: 16px;
+      margin: 15px 0 10px;
+      padding-bottom: 3px;
+      border-bottom: 1px solid #f0f4f7;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 13px;
+      page-break-inside: avoid;
+    }
+    th {
+      background-color: #0a4b78;
+      color: white;
+      padding: 8px;
+      text-align: right;
+      font-weight: 600;
+    }
+    td {
+      padding: 6px;
+      border: 1px solid #ddd;
+      color: #000;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .info-card {
+      margin: 15px 0;
+      page-break-inside: avoid;
+    }
+    .period-info {
+      text-align: center;
+      font-size: 14px;
+      margin: 10px 0;
+      font-weight: bold;
+    }
+    .negative {
+      color: #d32f2f;
+      font-weight: bold;
+    }
+    .positive {
+      color: #388e3c;
+      font-weight: bold;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 10px;
+    }
+    .signature {
+      margin-top: 30px;
+      text-align: center;
+    }
+    .director-name {
+      font-weight: bold;
+      font-size: 16px;
+    }
+    .director-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 5px;
+    }
+    .employee-name {
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff0000;
+      margin-bottom: 15px;
+    }
+    .auto-attendance {
+      background-color: #f0fff0;
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <div class="header">
+      <h1>الإدارة العامة لخدمة الموظفين</h1>
+      <h2>تقرير حضور الموظف</h2>
+      <div class="employee-name"><?= employee.الاسم || 'غير متوفر' ?></div>
+    </div>
+
+    <div class="period-info">
+      الفترة من <?= fromDate ?> إلى <?= toDate ?>
+    </div>
+
+    <div class="info-card">
+      <h3>البيانات الوظيفية</h3>
+      <table>
+        <tr>
+          <th>المسمى الوظيفي</th>
+          <td><?= employee.المسمى_الوظيفي || 'غير متوفر' ?></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="info-card">
+      <h3>ملخص الحضور</h3>
+      <table>
+        <tr>
+          <th>الموقف</th>
+          <th>عدد الأيام</th>
+        </tr>
+        <tr>
+          <td>اعتيادي (مسجل)</td>
+          <td><?= summary.attendance["اعتيادي"] - (summary.autoAttendanceDays || 0) ?></td>
+        </tr>
+        <? if (summary.autoAttendanceDays > 0) { ?>
+        <tr class="auto-attendance">
+          <td>اعتيادي (تلقائي)</td>
+          <td><?= summary.autoAttendanceDays ?></td>
+        </tr>
+        <? } ?>
+        <tr>
+          <td><strong>إجمالي اعتيادي</strong></td>
+          <td><strong><?= summary.attendance["اعتيادي"] || 0 ?></strong></td>
+        </tr>
+        <tr>
+          <td>عارضة</td>
+          <td><?= summary.attendance["عارضة"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>إذن صباحي</td>
+          <td><?= summary.attendance["اذن صباحي"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>إذن مسائي</td>
+          <td><?= summary.attendance["اذن مسائي"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>بدل راحة</td>
+          <td><?= summary.attendance["بدل راحة"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>مرضي</td>
+          <td><?= summary.attendance["مرضي"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>مستشفي</td>
+          <td><?= summary.attendance["مستشفي"] || 0 ?></td>
+        </tr>
+        <tr>
+          <td>مأموريات</td>
+          <td><?= summary.attendance["مأموريات"] || 0 ?></td>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="info-card">
+      <h3>الرصيد المتبقي</h3>
+      <table>
+        <tr>
+          <th>النوع</th>
+          <th>الرصيد الأصلي</th>
+          <th>المستحق</th>
+          <th>المتبقي</th>
+        </tr>
+        <tr>
+          <td>إعتيادي</td>
+          <td><?= summary.balance.رصيد_الاعتيادي || 0 ?></td>
+          <td><?= summary.attendance["اعتيادي"] || 0 ?></td>
+          <td class="<?= (summary.remaining.المتبقي_من_الاعتيادي < 0) ? 'negative' : 'positive' ?>">
+            <?= summary.remaining.المتبقي_من_الاعتيادي || 0 ?>
+          </td>
+        </tr>
+        <tr>
+          <td>عارضة</td>
+          <td><?= summary.balance.رصيد_العارضة || 0 ?></td>
+          <td><?= summary.attendance["عارضة"] || 0 ?></td>
+          <td class="<?= (summary.remaining.المتبقي_من_العارضة < 0) ? 'negative' : 'positive' ?>">
+            <?= summary.remaining.المتبقي_من_العارضة || 0 ?>
+          </td>
+        </tr>
+      </table>
+    </div>
+    
+    <div class="footer">
+      <div class="signature">
+        <div class="director-general">مدير عام</div>
+        <div class="org-title">الإدارة العامة لخدمة المواطنين</div>
+        <div class="director-name">أ/ حسن مدين</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
